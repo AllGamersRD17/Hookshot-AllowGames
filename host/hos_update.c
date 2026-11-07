@@ -12,8 +12,8 @@
 #include <string.h>
 
 #define UPDATE_HOST L"api.github.com"
-#define UPDATE_PATH L"/repos/AllGamersRD/Hookshot-AllowGames/releases/latest"   /* (Allow Games: the fork's releases, gpu/vk/allowgames.h AG_REPO) */
-#define RELEASES_PAGE L"https://github.com/AllGamersRD/Hookshot-AllowGames/releases/latest"
+#define UPDATE_PATH L"/repos/AllGamersRD17/Hookshot-AllowGames/releases/latest"   /* (Allow Games: the fork's releases, gpu/vk/allowgames.h AG_REPO) */
+#define RELEASES_PAGE L"https://github.com/AllGamersRD17/Hookshot-AllowGames/releases/latest"
 
 /* (a line "name=value" of a small text file, in UTF-8: its value, trimmed) */
 static int read_value(const wchar_t *path, const char *name, char *out, size_t cap) {

@@ -6,4 +6,4 @@
 #define AG_EDITION_VERSION "AG BETA v1.0"
 #define AG_MENU_TITLE "Hookshot AG"
 // The fork's GitHub repository (owner/name): the update offer asks its releases, not upstream's
-#define AG_REPO "AllGamersRD/Hookshot-AllowGames"
+#define AG_REPO "AllGamersRD17/Hookshot-AllowGames"
