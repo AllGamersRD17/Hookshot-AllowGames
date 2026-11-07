@@ -2528,6 +2528,7 @@ void present_image(VkImage src, uint32_t sw, uint32_t sh, const int crop[4], VkI
         vkCmdCopyImageToBuffer(f.cmd, log_image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, l.buf, 1, &c);
         l.used = true, l.at = prof_now(), l.seq = seq++, l.kind = present_kind.load();
     }
+    intro_record(f.cmd, dst, log_slot, dev.swap_extent.width, dev.swap_extent.height);
     menu_record(f.cmd, dst, log_slot, dev.swap_extent.width, dev.swap_extent.height);
     image_barrier(f.cmd, dst, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
     vkEndCommandBuffer(f.cmd);

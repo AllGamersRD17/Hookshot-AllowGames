@@ -27,5 +27,7 @@ bool menu_is_open();
 void menu_note_frame(bool game_frame);   // (the frame rates the FPS counter shows)
 /// Over the window's image (TRANSFER_DST_OPTIMAL), w x h: the menu and the FPS counter. slot: the frame in flight, 0 to 2.
 void menu_record(VkCommandBuffer cmd, VkImage dst, int slot, uint32_t w, uint32_t h);
+/// (Allow Games) The intro over the whole window for its first seconds, before menu_record: nothing once it is over.
+void intro_record(VkCommandBuffer cmd, VkImage dst, int slot, uint32_t w, uint32_t h);
 
 } // namespace mkwvk

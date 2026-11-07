@@ -607,7 +607,7 @@ void menu_tick() {
     }
 }
 
-void menu_record(VkCommandBuffer cmd, VkImage dst, int slot, uint32_t w, uint32_t h) {
+void intro_record(VkCommandBuffer cmd, VkImage dst, int slot, uint32_t w, uint32_t h) {
     if (intro_t >= 0 && intro_t < kIntroEnd) {   // (Allow Games) the intro over everything, the whole window
         VkMemoryBarrier2 mb{VK_STRUCTURE_TYPE_MEMORY_BARRIER_2};
         mb.srcStageMask = mb.dstStageMask = VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT;
@@ -618,6 +618,9 @@ void menu_record(VkCommandBuffer cmd, VkImage dst, int slot, uint32_t w, uint32_
         static Upload intro_ups[3];
         copy_over(cmd, dst, intro_bmp, intro_ups[slot], 0, 0, w, h);
     }
+}
+
+void menu_record(VkCommandBuffer cmd, VkImage dst, int slot, uint32_t w, uint32_t h) {
     if (opts.show_fps) {
         // The game image was just blitted (or cleared) into dst. Its write must
         // finish before the FPS pixels overwrite it; command order alone does
