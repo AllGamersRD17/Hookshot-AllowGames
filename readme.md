@@ -1,3 +1,46 @@
+<h1 align="center">Hookshot · Allow Games Edition</h1>
+
+<h4 align="center">A fork of <a href="https://github.com/NotRexed/Hookshot">NotRexed/Hookshot</a> by <b>Allow Games</b> (AllGamersRD),
+tuned for a steady, playable 60 fps.</h4>
+
+> [!IMPORTANT]
+> **No game, no keys, no executable, no Nintendo assets.** This repository is source code only, under the GPL, exactly like
+> upstream Hookshot. You build the game on your own PC from **your own legally owned copy**. Never upload, share or ask for
+> game files, keys, `hookshot.exe`, `image.bin`, shader caches or saves, here or anywhere else. Issues or pull requests that
+> contain or link to them are closed and deleted.
+>
+> Allow Games and this project are **not affiliated with, endorsed or sponsored by Nintendo**. All trademarks belong to
+> their owners and are used here only to say which game the code is compatible with.
+
+## What the Allow Games Edition adds
+
+| | |
+|---|---|
+| **60 fps lock** (on by default) | Gameplay is CPU-bound near 50 fps, so a native 60 stutters. The lock holds the game to an even 30 and 2x frame generation fills every other frame, paced evenly: a steady 60 on screen, with game speed kept at real time. It is the first row of the Insert menu; turn it off for upstream's behaviour. |
+| **Latest upstream fixes** | Built on upstream `main` with EvilOOT's exposure-flicker fix (the black flashes), the foliage and lighting fixes and the llvm-mingw toolchain. |
+| **Allow Games intro** | A short animated Allow Games logo over the black of the first seconds. `ALLOWGAMES_NO_INTRO=1` in `hookshot_env.txt` skips it. |
+| **Version in the menu** | The Insert menu shows which Allow Games Edition is running (`AG BETA v1.0`). |
+
+Switches for `hookshot_env.txt` (one `NAME=VALUE` per line, beside the game):
+
+- `ALLOWGAMES_LOCK60=0`: start with the 60 fps lock off.
+- `ALLOWGAMES_NO_INTRO=1`: no intro.
+- `ALLOWGAMES_UPDATE_CHECK=1`: the start-up update offer (off by default in this edition).
+
+### Building it
+
+The same as upstream (below): download `HookshotBuilder.zip` from **this repository's Releases**, extract it, run
+`HookshotBuilder.exe`, choose your own `.nup` (or `romfs` and `exefs`), a language and a folder. Building over your old
+Hookshot folder keeps your saves and settings.
+
+### Credits
+
+Everything below this line is upstream Hookshot's work and documentation, kept as it is: NotRexed, EvilBoyce (evilmfkr) and
+every contributor listed in the credits. The Allow Games Edition changes are by AllGamersRD / Allow Games. Like upstream, this
+fork is GPL-3.0-or-later.
+
+---
+
 <h1 align="center">
   <br>
   <a>

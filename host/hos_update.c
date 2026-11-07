@@ -12,8 +12,8 @@
 #include <string.h>
 
 #define UPDATE_HOST L"api.github.com"
-#define UPDATE_PATH L"/repos/NotRexed/Hookshot/releases/latest"
-#define RELEASES_PAGE L"https://github.com/NotRexed/Hookshot/releases/latest"
+#define UPDATE_PATH L"/repos/AllGamersRD/Hookshot-AllowGames/releases/latest"   /* (Allow Games: the fork's releases, gpu/vk/allowgames.h AG_REPO) */
+#define RELEASES_PAGE L"https://github.com/AllGamersRD/Hookshot-AllowGames/releases/latest"
 
 /* (a line "name=value" of a small text file, in UTF-8: its value, trimmed) */
 static int read_value(const wchar_t *path, const char *name, char *out, size_t cap) {
@@ -78,6 +78,9 @@ static int latest_tag(char *tag, size_t cap) {
 }
 
 void hos_update_check(void) {
+    /* (Allow Games) off unless ALLOWGAMES_UPDATE_CHECK=1: the HookshotBuilder.exe in this fork's zip is upstream's, whose own
+       updater would fetch upstream's release over this edition. On once the fork ships its own builder */
+    if (!getenv("ALLOWGAMES_UPDATE_CHECK") || !strcmp(getenv("ALLOWGAMES_UPDATE_CHECK"), "0")) return;
     if (getenv("HOOKSHOT_NO_UPDATE_CHECK") && strcmp(getenv("HOOKSHOT_NO_UPDATE_CHECK"), "0")) return;
     wchar_t dir[MAX_PATH], file[MAX_PATH + 64];
     DWORD n = GetModuleFileNameW(NULL, dir, MAX_PATH);
@@ -117,7 +120,7 @@ void hos_update_check(void) {
                    L"The Hookshot Builder that made this folder was not found, so it can't update by itself. Open the download page?\n\n"
                    L"Yes: open the page\nNo: not now (asked again next time)\nCancel: skip this version",
                    wtag, whave);
-    const int answer = MessageBoxW(NULL, text, L"Hookshot update", MB_YESNOCANCEL | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+    const int answer = MessageBoxW(NULL, text, L"Hookshot Allow Games Edition update", MB_YESNOCANCEL | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     if (answer == IDCANCEL) {
         wchar_t user[MAX_PATH + 16];
         _snwprintf(user, MAX_PATH + 16, L"%ls\\user", dir);
@@ -143,7 +146,7 @@ void hos_update_check(void) {
         fflush(stderr);
         ExitProcess(0);
     }
-    MessageBoxW(NULL, L"Hookshot Builder could not be started. The game starts as it is.", L"Hookshot update", MB_OK | MB_ICONWARNING | MB_TOPMOST);
+    MessageBoxW(NULL, L"Hookshot Builder could not be started. The game starts as it is.", L"Hookshot Allow Games Edition update", MB_OK | MB_ICONWARNING | MB_TOPMOST);
 }
 #else
 void hos_update_check(void) {}

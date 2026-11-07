@@ -249,7 +249,12 @@ void hos_vi_native_presented(void) {
         if (ms < 0) ms = getenv("HOS_FRAME_SLEEP_MS") ? atoi(getenv("HOS_FRAME_SLEEP_MS")) : 0;
         if (ms) hos_sleep_ns(ms * 1000000LL);
     }
-    const int64_t period = 1000000000LL / 60 * present_interval, now = hos_now_ns();
+    /* (Allow Games) The 60 fps lock (the Insert menu's first row, option 4): every frame held to two vsyncs, an even 30, which the
+       renderer's 2x frame generation shows as 60. Gameplay is CPU-bound near 50: an even 30 is always reached, and the game's
+       real-time step (realtime_step, below) keeps its speed */
+    int rx_option(int id, int otherwise);
+    const int interval = rx_option(4, 0) && present_interval < 2 ? 2 : present_interval;
+    const int64_t period = 1000000000LL / 60 * interval, now = hos_now_ns();
     realtime_step(now);
     /* (behind by more than a frame: the next one is paced from now, with no burst to catch up) */
     next_frame_at = next_frame_at && now - next_frame_at < period ? next_frame_at + period : now + period;
@@ -279,7 +284,7 @@ void hos_vi_native_presented(void) {
     last_present = now;
     if (now - window_start >= 5000000000LL) {
         hos_log("vi: %lld frames presented (%.1f fps over the last %.1f s, interval %d)", (long long)n,
-                frames_in_window * 1e9 / (double)(now - window_start), (now - window_start) / 1e9, present_interval);
+                frames_in_window * 1e9 / (double)(now - window_start), (now - window_start) / 1e9, interval);
         hos_log("vi: present intervals: <15.5 ms %d, 15.5-17.8 %d, 17.8-22 %d, 22-30 %d, 30-40 %d, over 40 %d", hist[0],
                 hist[1], hist[2], hist[3], hist[4], hist[5]);
         memset(hist, 0, sizeof hist);

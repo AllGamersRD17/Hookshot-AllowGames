@@ -5,7 +5,7 @@
 
 namespace mkwvk {
 
-// (out of the box every feature is off: what the game does on its own. The ini beside the executable keeps a player's choices)
+// (out of the box every feature is off but the Allow Games 60 fps lock. The ini beside the executable keeps a player's choices)
 struct Options {
     int framegen = 0;     // made frames: 0 off, or 2, 3, 4 times the game's frames
     int pace = 0;         // frames shown on an even line (vk_framegen.cpp)
@@ -17,6 +17,7 @@ struct Options {
     int ultrawide = 0;    // the camera at the monitor's shape when it is wider than 16:9; read once, at the start (host/hos_main.c)
     int show_fps = 0;
     int fullscreen = 0;   // borderless, at the monitor's size: F11 is the same setting
+    int lock60 = 1;       // (Allow Games) 60 fps lock: the game held to a steady 30 (host/nn_vi.c), 2x frame generation paced to 60
 };
 extern Options opts;
 

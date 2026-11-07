@@ -1,7 +1,10 @@
 // The Insert menu. Drawn on the CPU (GDI text into a bitmap) and copied over the window's image at the last step of a present,
 // so it costs nothing while closed and it never touches the game's picture, nor what frame interpolation sees. Keys: Insert
 // opens and closes it, Up and Down choose, Left and Right change, Esc closes; the game gets no keyboard input while it is open.
+#include <algorithm>
 #include <atomic>
+#include <cmath>
+#include <cstdlib>
 #include <chrono>
 #include <cstdio>
 #include <cstring>
@@ -13,6 +16,7 @@
 #ifndef HOOKSHOT_VERSION   // (nx2/build.py gives it to this file: nx2/version.py)
 #define HOOKSHOT_VERSION "unknown"
 #endif
+#include "allowgames.h"
 
 namespace mkwvk {
 HWND app_window();
@@ -52,6 +56,9 @@ const char* tx_handheld(int v) { return v ? "On (restart)" : "Off (restart)"; }
 const char* tx_ultrawide(int v) { return v ? "Monitor's shape (restart)" : "16:9 (restart)"; }
 
 Row rows[] = {
+    {"60 fps lock", &opts.lock60, 0, 1, 1, tx_onoff,
+     "Allow Games: a steady 60. The game runs at an even 30 and 2x frame generation fills in every other frame, paced "
+     "evenly. Far lighter on the CPU than chasing a native 60. Changing Frame generation, Frame pacing or Game speed turns it off."},
     {"Fullscreen", &opts.fullscreen, 0, 1, 1, tx_onoff,
      "Fills the whole screen with the game, without the window's border. The same as F11."},
     {"Frame generation", &opts.framegen, 0, 8, 1, tx_framegen,
@@ -101,6 +108,12 @@ void save() {
         fprintf(f, "options_version=2\n");   // (game_speed below 2 was only ever the old default, see menu_init)
         fclose(f);
     }
+}
+/// (Allow Games) The 60 fps lock's settings: 2x frame generation, even pacing, real-time game speed (the game itself is held to
+/// 30 by host/nn_vi.c through option 4). Turned off, frame generation goes back off.
+void apply_lock60(bool turned_off) {
+    if (opts.lock60) opts.framegen = 2, opts.pace = 1, opts.realtime = 1;
+    else if (turned_off) opts.framegen = 0;
 }
 
 // ---- what is drawn: bitmaps of the menu and the counter, in the window's byte order ----
@@ -206,15 +219,15 @@ void paint_menu(HDC dc, uint32_t w, uint32_t h, int s) {
     HFONT title = font(20 * s, FW_SEMIBOLD), body = font(16 * s, FW_NORMAL);
     HGDIOBJ old = SelectObject(dc, title);
     SetTextColor(dc, RGB(236, 240, 236));
-    TextOutA(dc, 16 * s, 12 * s, "Hookshot", 8);
+    TextOutA(dc, 16 * s, 12 * s, AG_MENU_TITLE, (int)strlen(AG_MENU_TITLE));
     {   // (which build, beside the title, so a report can say it without opening the log; the release alone when the whole
         // line would run into the title)
         SIZE tsz{};
-        GetTextExtentPoint32A(dc, "Hookshot", 8, &tsz);
+        GetTextExtentPoint32A(dc, AG_MENU_TITLE, (int)strlen(AG_MENU_TITLE), &tsz);
         HFONT small = font(12 * s, FW_NORMAL);
         SelectObject(dc, small);
         SetTextColor(dc, RGB(140, 150, 144));
-        std::string ver = HOOKSHOT_VERSION;
+        std::string ver = AG_EDITION_VERSION;
         const int room = (int)w - 32 * s - tsz.cx - 12 * s;
         SIZE sz{};
         GetTextExtentPoint32A(dc, ver.c_str(), (int)ver.size(), &sz);
@@ -288,6 +301,111 @@ void paint_fps(HDC dc, uint32_t w, uint32_t h, int s) {
     SelectObject(dc, old);
     DeleteObject(label);
     DeleteObject(big);
+}
+
+// ---- (Allow Games) the intro: the Allow Games logo over the black of the first seconds, before the game's own title ----
+// Drawn like the menu (GDI text into a bitmap, only the calls the POSIX stand-in has), then lit and faded pixel by pixel.
+// About 4.5 s from the first frame shown; ALLOWGAMES_NO_INTRO=1 (hookshot_env.txt) leaves it out.
+Bitmap intro_bmp;
+double intro_t = -1;   // seconds since the first frame; < 0 before it, past kIntroEnd once over
+constexpr double kIntroEnd = 4.6;
+double ease_out(double x) { x = x < 0 ? 0 : x > 1 ? 1 : x; return 1 - (1 - x) * (1 - x) * (1 - x); }
+HFONT logo_font(int px, int weight) {
+    return CreateFontA(-px, 0, 0, 0, weight, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY,
+                       DEFAULT_PITCH, "Impact");
+}
+/// One word with a thick dark edge and a two-tone fill (bright top, deeper bottom: drawn twice, the second a little lower)
+void logo_word(HDC dc, int x, int y, const char* t, COLORREF top, COLORREF bottom, int edge) {
+    const int n = (int)strlen(t);
+    SetTextColor(dc, RGB(10, 6, 4));
+    for (int dy = -edge; dy <= edge + edge / 2; dy += std::max(1, edge / 3))
+        for (int dx = -edge; dx <= edge; dx += std::max(1, edge / 3)) TextOutA(dc, x + dx, y + dy, t, n);
+    SetTextColor(dc, bottom);
+    TextOutA(dc, x, y + std::max(1, edge / 2), t, n);
+    SetTextColor(dc, top);
+    TextOutA(dc, x, y, t, n);
+}
+/// The crown over the logo, in steps of filled rectangles: three points and a band
+void crown(HDC dc, int cx, int top, int u, COLORREF c) {
+    fill(dc, cx - 9 * u, top + 6 * u, 18 * u, 3 * u, c);
+    for (int k = -1; k <= 1; k++) {
+        const int px = cx + k * 7 * u, h = k ? 5 : 7;
+        for (int i = 0; i < h; i++) {
+            const int half = std::max(1, (i + 1) * u / 2);
+            fill(dc, px - half, top + 6 * u - (h - i) * u, half * 2, u, c);
+        }
+    }
+    fill(dc, cx - 9 * u, top + 9 * u, 18 * u, u, RGB(150, 90, 20));
+}
+void paint_intro(HDC dc, uint32_t w, uint32_t h, int) {
+    fill(dc, 0, 0, (int)w, (int)h, RGB(0, 0, 0));
+    SetBkMode(dc, TRANSPARENT);
+    const double t = intro_t;
+    const int big = std::max(24, (int)(h / 7)), edge = std::max(2, big / 22), u = std::max(2, big / 14);
+    HFONT f = logo_font(big, 900);
+    HGDIOBJ old = SelectObject(dc, f);
+    SIZE a{}, g{};
+    GetTextExtentPoint32A(dc, "ALLOW", 5, &a);
+    GetTextExtentPoint32A(dc, "GAMES", 5, &g);
+    const int gap = big / 5, total = a.cx + gap + g.cx;
+    const int cx = (int)w / 2, y = (int)h / 2 - a.cy / 2;
+    // the words fly in from the sides and land at 0.7 s, with a little overshoot
+    const double k = ease_out(t / 0.7), over = t > 0.7 && t < 0.95 ? std::sin((t - 0.7) / 0.25 * 3.14159) * 0.04 : 0;
+    const int ax = (int)(cx - total / 2 - (1 - k) * w * 0.6 - over * w * 0.1);
+    const int gx = (int)(cx - total / 2 + a.cx + gap + (1 - k) * w * 0.6 + over * w * 0.1);
+    logo_word(dc, ax, y, "ALLOW", RGB(255, 214, 64), RGB(240, 120, 24), edge);
+    logo_word(dc, gx, y, "GAMES", RGB(255, 255, 255), RGB(170, 200, 255), edge);
+    // the crown drops onto the logo at 0.9 s
+    if (t > 0.6) {
+        const double c = ease_out((t - 0.6) / 0.35);
+        crown(dc, cx, (int)(y - 11 * u - (1 - c) * h * 0.3), u, RGB(255, 200, 40));
+    }
+    // the bar under it grows from the middle
+    if (t > 0.8) {
+        const int bw = (int)(total * ease_out((t - 0.8) / 0.5));
+        fill(dc, cx - bw / 2, y + a.cy + u, bw, std::max(2, u / 2), RGB(240, 120, 24));
+    }
+    // the line under the bar
+    if (t > 1.3) {
+        HFONT small = logo_font(std::max(12, big / 4), FW_NORMAL);
+        SelectObject(dc, small);
+        const double v = ease_out((t - 1.3) / 0.6);
+        const int c = (int)(220 * v);
+        SetTextColor(dc, RGB(c, c, c));
+        const char* line = "HOOKSHOT  " AG_EDITION_NAME;
+        SIZE l{};
+        GetTextExtentPoint32A(dc, line, (int)strlen(line), &l);
+        TextOutA(dc, cx - l.cx / 2, y + a.cy + 3 * u, line, (int)strlen(line));
+        SelectObject(dc, f);
+        DeleteObject(small);
+    }
+    SelectObject(dc, old);
+    DeleteObject(f);
+}
+/// After the GDI pass: the impact flash as the words land, a light sweeping across, and the fade out
+void light_intro(Bitmap& b) {
+    std::lock_guard lk(bmp_mu);
+    const double t = intro_t;
+    const double flash = t > 0.68 && t < 1.0 ? 1 - (t - 0.68) / 0.32 : 0;
+    const double fade = t > 3.7 ? std::max(0.0, 1 - (t - 3.7) / 0.8) : t < 0.15 ? t / 0.15 : 1;
+    const double sweep = t > 1.2 && t < 2.4 ? (t - 1.2) / 1.2 : -1;   // (0 to 1: the band's place, left to right)
+    const int w = (int)b.w, h = (int)b.h, band = std::max(8, w / 14);
+    const int at = sweep >= 0 ? (int)(-band * 2 + sweep * (w + band * 4)) : -100000;
+    for (int y = 0; y < h; y++) {
+        uint8_t* p = b.px.data() + (size_t)y * w * 4;
+        const int skew = (h - y) / 2;   // (a slanted band)
+        for (int x = 0; x < w; x++, p += 4) {
+            const bool lit = p[0] | p[1] | p[2];
+            double m = fade, add = 0;
+            if (lit) {
+                const int d = std::abs(x + skew - at);
+                if (d < band) add = (1 - d / (double)band) * 150;
+            }
+            add += flash * 90;   // (the flash lights the black too: an impact)
+            for (int c = 0; c < 3; c++) p[c] = (uint8_t)std::min(255.0, (p[c] + add) * m);
+        }
+    }
+    b.version++;
 }
 /// The tallest help text at scale s, in pixels: the menu keeps that height whichever row is selected
 int measure_help(int s) {
@@ -370,6 +488,8 @@ void menu_init() {
         if (!v2) opts.realtime = 1;
     }
     if (opts.framegen == 1) opts.framegen = 2;
+    if (const char* e = getenv("ALLOWGAMES_LOCK60")) opts.lock60 = atoi(e) != 0;
+    apply_lock60(false);
     if (const char* e = getenv("RX_VK_FRAMEGEN_MULT")) opts.framegen = std::min(std::max(atoi(e), 2), 8);
     if (const char* e = getenv("RX_VK_PACE")) opts.pace = atoi(e) != 0;
     if (const char* e = getenv("RX_VK_UPSCALE"))
@@ -427,6 +547,19 @@ bool fps_take(int64_t now, int64_t shown, int64_t game, int64_t* next, int64_t* 
 
 void menu_tick() {
     fullscreen_tick();
+    {   // (Allow Games) the intro's clock starts at the first frame shown
+        static const bool no_intro = getenv("ALLOWGAMES_NO_INTRO") && atoi(getenv("ALLOWGAMES_NO_INTRO"));
+        static int64_t start = 0;
+        if (!no_intro && intro_t < kIntroEnd && dev.swap_extent.width) {
+            const int64_t now = prof_now();
+            if (!start) start = now;
+            intro_t = (now - start) / 1e9;
+            if (intro_t < kIntroEnd) {
+                gdi_draw(intro_bmp, dev.swap_extent.width, dev.swap_extent.height, paint_intro, 1);
+                light_intro(intro_bmp);
+            }
+        }
+    }
     static bool held[7];
     static const int keys[7] = {VK_INSERT, VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT, VK_ESCAPE, VK_F1};   // (F1: for keyboards without Insert)
     HWND fg = GetForegroundWindow();
@@ -453,6 +586,8 @@ void menu_tick() {
             int v = *r.value + (press[4] ? r.step : -r.step);
             if (r.value == &opts.framegen && v == 1) v = press[4] ? 2 : 0;   // (off, 2x ... 8x)
             *r.value = v > r.hi ? r.lo : v < r.lo ? r.hi : v;
+            if (r.value == &opts.lock60) apply_lock60(!opts.lock60);
+            else if (opts.lock60 && (r.value == &opts.framegen || r.value == &opts.pace || r.value == &opts.realtime)) opts.lock60 = 0;
             changed = true;
             save();
         }
@@ -473,6 +608,16 @@ void menu_tick() {
 }
 
 void menu_record(VkCommandBuffer cmd, VkImage dst, int slot, uint32_t w, uint32_t h) {
+    if (intro_t >= 0 && intro_t < kIntroEnd) {   // (Allow Games) the intro over everything, the whole window
+        VkMemoryBarrier2 mb{VK_STRUCTURE_TYPE_MEMORY_BARRIER_2};
+        mb.srcStageMask = mb.dstStageMask = VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT;
+        mb.srcAccessMask = mb.dstAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+        VkDependencyInfo di{VK_STRUCTURE_TYPE_DEPENDENCY_INFO};
+        di.memoryBarrierCount = 1, di.pMemoryBarriers = &mb;
+        vkCmdPipelineBarrier2(cmd, &di);
+        static Upload intro_ups[3];
+        copy_over(cmd, dst, intro_bmp, intro_ups[slot], 0, 0, w, h);
+    }
     if (opts.show_fps) {
         // The game image was just blitted (or cleared) into dst. Its write must
         // finish before the FPS pixels overwrite it; command order alone does
