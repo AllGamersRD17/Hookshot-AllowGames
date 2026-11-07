@@ -763,12 +763,14 @@ void oot_visual(Shader::IR::Program& program, uint64_t key) {
     // (EvilOOT, 11-07: off unless RX_VK_OOT_VISUAL=1. With the foliage culling, the pointer reads and the first GPU work right, the
     // game's own fog is the soft haze with sun shafts of the console's picture at Kokiri's rock; the 0.08 factor was tuned against
     // the white wall those bugs made, and thinned every scene's fog)
-    static const bool on = getenv("RX_VK_OOT_VISUAL") && atoi(getenv("RX_VK_OOT_VISUAL")) != 0;
+    // (Allow Games: on by default, with a thinner fog and a touch less exposure: the game's full fog read as a white wall on
+    // players' PCs. RX_VK_OOT_VISUAL=0: upstream's look)
+    static const bool on = !getenv("RX_VK_OOT_VISUAL") || atoi(getenv("RX_VK_OOT_VISUAL")) != 0;
     if (!on) return;
-    static const float fog = getenv("RX_VK_OOT_FOG") ? (float)atof(getenv("RX_VK_OOT_FOG")) : 0.08f;   // (0.25, Orchid's, left a white forest once the game no longer lost its start)
+    static const float fog = getenv("RX_VK_OOT_FOG") ? (float)atof(getenv("RX_VK_OOT_FOG")) : 0.25f;   // (0.25, Orchid's, left a white forest once the game no longer lost its start)
     // (1: the game's own exposure. 0.65 was for the washed-out outdoors before shaders followed pointers; with the lighting right it
     // made scenes too dark, issue 103)
-    static const float exposure = getenv("RX_VK_OOT_EXPOSURE") ? (float)atof(getenv("RX_VK_OOT_EXPOSURE")) : 1.0f;
+    static const float exposure = getenv("RX_VK_OOT_EXPOSURE") ? (float)atof(getenv("RX_VK_OOT_EXPOSURE")) : 0.9f;
     if (const size_t n = Shader::Optimization::ApplyOotVisualWorkaround(program, fog, exposure))
         logf("vk: OoT visual workaround: %s program %016llx, %zu edits", program.stage == Shader::Stage::Compute ? "fog" : "exposure",
              (unsigned long long)key, n);

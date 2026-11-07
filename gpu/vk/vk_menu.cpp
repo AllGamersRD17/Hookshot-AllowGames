@@ -58,7 +58,8 @@ const char* tx_ultrawide(int v) { return v ? "Monitor's shape (restart)" : "16:9
 Row rows[] = {
     {"60 fps lock", &opts.lock60, 0, 1, 1, tx_onoff,
      "Allow Games: a steady 60. The game runs at an even 30 and 2x frame generation fills in every other frame, paced "
-     "evenly. Far lighter on the CPU than chasing a native 60. Changing Frame generation, Frame pacing or Game speed turns it off."},
+     "evenly. Far lighter on the CPU than chasing a native 60. While it is on, Frame generation, Frame pacing and Game speed stay as it "
+     "needs them: turn it off first to change them."},
     {"Fullscreen", &opts.fullscreen, 0, 1, 1, tx_onoff,
      "Fills the whole screen with the game, without the window's border. The same as F11."},
     {"Frame generation", &opts.framegen, 0, 8, 1, tx_framegen,
@@ -587,7 +588,7 @@ void menu_tick() {
             if (r.value == &opts.framegen && v == 1) v = press[4] ? 2 : 0;   // (off, 2x ... 8x)
             *r.value = v > r.hi ? r.lo : v < r.lo ? r.hi : v;
             if (r.value == &opts.lock60) apply_lock60(!opts.lock60);
-            else if (opts.lock60 && (r.value == &opts.framegen || r.value == &opts.pace || r.value == &opts.realtime)) opts.lock60 = 0;
+            else if (opts.lock60) apply_lock60(false);   // (while the lock is on, its three settings stay as it needs them)
             changed = true;
             save();
         }
