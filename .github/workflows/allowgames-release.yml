@@ -1,0 +1,51 @@
+# (Allow Games) The edition's HookshotBuilder.zip: upstream's released builder (its .exe, Python, compilers and prebuilt tools,
+# none of it game data) with this repository's sources laid over its tools folder, published as the tag's release.
+# Push a tag AG-... (or run it by hand with a tag name). Release notes: .github/allowgames/<tag>.md
+name: Allow Games release
+on:
+  push:
+    tags: ['AG-*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag (AG-...)
+        required: true
+permissions:
+  contents: write
+env:
+  UPSTREAM_TAG: foliage-linux-updater   # (the upstream release whose builder and tools are reused)
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Upstream builder
+        run: |
+          curl -fsSL -o upstream.zip "https://github.com/NotRexed/Hookshot/releases/download/${UPSTREAM_TAG}/HookshotBuilder.zip"
+          mkdir up && cd up && unzip -q ../upstream.zip
+      - name: This edition's sources over its tools
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          T=up/HookshotBuilder/tools
+          for d in host gpu nx2 scripts third_party; do cp -a "$d/." "$T/$d/"; done
+          [ -d work ] && cp -a work/. "$T/work/" || true
+          cp readme.md LICENSE "$T/"
+          echo "$TAG" > "$T/version.txt"
+          # (never game files: stop if anything that looks like one got in)
+          if find up -iname '*.nup' -o -iname '*.keys' -o -iname 'hookshot.exe' -o -iname 'image.bin' | grep -q .; then
+            echo "game files found"; exit 1; fi
+          (cd up && zip -qr -9 ../HookshotBuilder.zip HookshotBuilder)
+          ls -la HookshotBuilder.zip
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NOTES=".github/allowgames/${TAG}.md"
+          [ -f "$NOTES" ] || NOTES=/dev/null
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" HookshotBuilder.zip --clobber
+          else
+            gh release create "$TAG" HookshotBuilder.zip --target "$GITHUB_SHA" --title "Allow Games Edition — ${TAG#AG-}" \
+              --notes-file "$NOTES" --prerelease
+          fi
