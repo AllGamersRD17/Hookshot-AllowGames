@@ -17,7 +17,7 @@ tuned for a steady, playable 60 fps.</h4>
 | | |
 |---|---|
 | **60 fps lock** (on by default) | Gameplay is CPU-bound near 50 fps, so a native 60 stutters. The lock holds the game to an even 30 and 2x frame generation fills every other frame, paced evenly: a steady 60 on screen, with game speed kept at real time. It is the first row of the Insert menu; turn it off for upstream's behaviour. |
-| **Latest upstream fixes** | Built on upstream `main` with EvilOOT's exposure-flicker fix (the black flashes), the foliage and lighting fixes and the llvm-mingw toolchain. |
+| **Latest upstream fixes** | Built on upstream `main` with EvilOOT's exposure-flicker fix (the black flashes) and the foliage and lighting fixes. |
 | **Allow Games intro** | A short animated Allow Games logo over the black of the first seconds. `ALLOWGAMES_NO_INTRO=1` in `hookshot_env.txt` skips it. |
 | **Version in the menu** | The Insert menu shows which Allow Games Edition is running (`AG BETA v1.0`). |
 
