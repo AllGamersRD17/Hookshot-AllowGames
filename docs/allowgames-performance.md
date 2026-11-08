@@ -38,6 +38,13 @@ preset Balanced, Resolution 100%, Handheld profile off, **FPS lock off, frame ge
 5-second window at 60.0; present intervals 15.5-17.8 ms for ~87% of frames and none over 22 ms; GPU 12.6-13.2 ms a frame.
 The player described it as completely smooth with no stutter. From AG BETA v1.4 the FPS lock is off by default.
 
+### Hyrule Field on an 8 GB card (2026-11-08)
+
+Out in Hyrule Field with Quality preset **Ultra** (meant for 16 GB+) on the RTX 3070 (8 GB) at 1440p and Resolution 100%: 3,800
+draws a frame (Kokiri: ~1,000), GPU 18-19 ms, VRAM over budget (7.6 GB used of 6.9 GB allowed, textures 3.0 GB of a 2.2 GB
+budget). The game fell to 27-58 fps and the brightness flashed. Next: Quality preset **Balanced** (8 GB) and Resolution 75%;
+results to follow. On 8 GB cards, keep the preset at Balanced or lower.
+
 ### Conclusions so far
 
 - On a 14700K + RTX 3070 the game reaches about 50 fps natively; the GPU is far from busy.
