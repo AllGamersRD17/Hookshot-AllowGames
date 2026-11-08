@@ -78,9 +78,9 @@ static int latest_tag(char *tag, size_t cap) {
 }
 
 void hos_update_check(void) {
-    /* (Allow Games) off unless ALLOWGAMES_UPDATE_CHECK=1: the HookshotBuilder.exe in this fork's zip is upstream's, whose own
-       updater would fetch upstream's release over this edition. On once the fork ships its own builder */
-    if (!getenv("ALLOWGAMES_UPDATE_CHECK") || !strcmp(getenv("ALLOWGAMES_UPDATE_CHECK"), "0")) return;
+    /* (Allow Games) on: this fork's zip carries its own HookshotBuilder.exe (built by .github/workflows/allowgames-release.yml),
+       whose updater fetches this fork's release. ALLOWGAMES_UPDATE_CHECK=0 (or HOOKSHOT_NO_UPDATE_CHECK=1) turns it off */
+    if (getenv("ALLOWGAMES_UPDATE_CHECK") && !strcmp(getenv("ALLOWGAMES_UPDATE_CHECK"), "0")) return;
     if (getenv("HOOKSHOT_NO_UPDATE_CHECK") && strcmp(getenv("HOOKSHOT_NO_UPDATE_CHECK"), "0")) return;
     wchar_t dir[MAX_PATH], file[MAX_PATH + 64];
     DWORD n = GetModuleFileNameW(NULL, dir, MAX_PATH);

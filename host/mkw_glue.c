@@ -18,9 +18,30 @@
 void hos_commit(uint64_t addr, uint64_t size) {
     if (!size) return;
     const uint64_t lo = addr & ~0xFFFFULL, hi = (addr + size + 0xFFFF) & ~0xFFFFULL;
-    if (!VirtualAlloc(GP(lo), (SIZE_T)(hi - lo), MEM_COMMIT, PAGE_READWRITE))
+    if (!VirtualAlloc(GP(lo), (SIZE_T)(hi - lo), MEM_COMMIT, PAGE_READWRITE)) {
+        const DWORD err = GetLastError();
         hos_log("mem: commit of %#llx bytes at %#llx failed (error %lu)", (unsigned long long)(hi - lo),
-                (unsigned long long)lo, GetLastError());
+                (unsigned long long)lo, err);
+        if (err == ERROR_COMMITMENT_LIMIT) {   /* (1455: RAM and page file full; the game crashes soon after. Said once, on its own thread) */
+            static volatile LONG said;
+            if (InterlockedExchange(&said, 1) == 0) {
+                hos_log("mem: Windows is out of memory (RAM and page file): close other programs, or let Windows manage the page file size");
+                extern DWORD WINAPI hos_out_of_memory_box(LPVOID);
+                CloseHandle(CreateThread(NULL, 0, hos_out_of_memory_box, NULL, 0, NULL));
+            }
+        }
+    }
+}
+
+DWORD WINAPI hos_out_of_memory_box(LPVOID unused) {
+    (void)unused;
+    MessageBoxA(NULL,
+                "Windows has run out of memory (RAM plus the page file), so Hookshot may close.\n\n"
+                "Close other programs, and in Windows' System > About > Advanced system settings > Performance > Advanced > Virtual "
+                "memory, choose \"Automatically manage paging file size\" (or give it at least 16 GB). A lower Quality preset in the "
+                "Insert menu also uses less memory.",
+                "Hookshot: out of memory", MB_OK | MB_ICONWARNING | MB_TOPMOST);
+    return 0;
 }
 
 static LONG CALLBACK commit_on_touch(EXCEPTION_POINTERS *info) {
@@ -183,7 +204,6 @@ void hos_commit_init(void) {
 }
 
 /* ---- stand-ins --------------------------------------------------------------------------------------------- */
-void hos_mods_init(const char *image_path) { (void)image_path; } /* (mods.c) */
 /* HOS_PROFILE=<seconds> (in place of TOTKPort's hos_prof.c): every interval, the process's busiest threads and their
    share of a core (guest threads by their guest names, host threads by their descriptions): which one a frame rate
    waits for */
@@ -615,9 +635,6 @@ int hos_blank_cached_icon(const char *guest, const char *host) { (void)guest, (v
 int hos_ultrawide_redirect(const char *guest, char *out, size_t cap) { (void)guest, (void)out, (void)cap; return 0; }
 uint64_t hos_title_input(uint64_t buttons) { return buttons; }   /* (totk_title.c) */
 uint64_t hos_frame_step_buttons(uint64_t buttons) { return buttons; }   /* (nn_vi.c) */
-int hos_mods_dir_extras(const char *rel, const char *base_dir, void (*fn)(void *, const char *, int, uint64_t),
-                        void *arg) { (void)rel, (void)base_dir, (void)fn, (void)arg; return 0; }   /* (mods.c) */
-int hos_mods_romfs(const char *rel, char *out, size_t cap) { (void)rel, (void)out, (void)cap; return 0; }
 /* (hookshot) hos_sdl_pads, hos_sdl_rumble: host/pad_sdl.c (from TOTKPort; SDL2.dll beside the exe) */
 
 /* TOTK's emulated GPU (gpu.c, its Maxwell command processor), which nvdrv.c and the debug commands call into: MKW
