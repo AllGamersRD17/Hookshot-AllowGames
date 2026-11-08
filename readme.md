@@ -3,6 +3,20 @@
 <h4 align="center">A fork of <a href="https://github.com/NotRexed/Hookshot">NotRexed/Hookshot</a> by <b>Allow Games</b> (AllGamersRD),
 tuned for a steady, playable 60 fps.</h4>
 
+<p align="center"><a href="https://github.com/AllGamersRD17/Hookshot-AllowGames/releases/latest"><b>⬇️ Download / Descargar: HookshotBuilder.zip (latest release)</b></a></p>
+
+### 🇪🇸 Cómo instalarlo
+1. Baja **`HookshotBuilder.zip`** de la [última versión](https://github.com/AllGamersRD17/Hookshot-AllowGames/releases/latest) y descomprímelo en una carpeta nueva.
+2. Abre **`HookshotBuilder.exe`**. Si sale «Windows protegió su PC», dale a *Más información* → *Ejecutar de todas formas* (el instalador no tiene firma de empresa).
+3. Elige **tu propia copia** del juego (`.nup`), un idioma y una carpeta, y dale a compilar. Tus partidas y ajustes se quedan si compilas en la misma carpeta.
+4. Abre `hookshot.exe`. Con **Insert** sale el menú: *FPS lock* (60 / 30 / Off), resolución y más. El juego te avisa solo cuando sale una versión nueva.
+
+### 🇺🇸 How to install
+1. Download **`HookshotBuilder.zip`** from the [latest release](https://github.com/AllGamersRD17/Hookshot-AllowGames/releases/latest) and extract it to a new folder.
+2. Run **`HookshotBuilder.exe`**. If Windows shows "Windows protected your PC", click *More info* → *Run anyway* (the builder is not signed by a company).
+3. Pick **your own copy** of the game (`.nup`), a language and a folder, and build. Saves and settings stay when you build into the same folder.
+4. Run `hookshot.exe`. **Insert** opens the menu: *FPS lock* (60 / 30 / Off), resolution and more. The game tells you when a new version is out.
+
 > [!IMPORTANT]
 > **No game, no keys, no executable, no Nintendo assets.** This repository is source code only, under the GPL, exactly like
 > upstream Hookshot. You build the game on your own PC from **your own legally owned copy**. Never upload, share or ask for
