@@ -15,7 +15,7 @@ ammo, bottles, stones, medallions, all songs). Close the game and drag your `pro
 
 What we found to make it work: items appear only when their per-item **`StockNum`** is set (not just the `IsGet` flags); bag
 and wallet limits sit in a capacity table; bottles need `IsValid` plus the content enum. Details and a full guide:
-[tools/allowgames](https://github.com/AllGamersRD17/hookshot-allowgames/tree/allow-games/tools/allowgames).
+[tools/allowgames](https://github.com/AllGamersRD17/hookshot-allowgames/tree/main/tools/allowgames).
 
 Prior work: **Traiver's [OOT SW2SE](https://github.com/Traiver/OOT-SW2SE)** (a GUI editor for the same game) came out on
 2026-11-07, a few hours before ours; we made ours independently.
