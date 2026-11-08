@@ -26,6 +26,8 @@ tuned for a steady, playable 60 fps.</h4>
 > Allow Games and this project are **not affiliated with, endorsed or sponsored by Nintendo**. All trademarks belong to
 > their owners and are used here only to say which game the code is compatible with.
 
+<p align="center"><a href="tools/allowgames/README.md"><img src="tools/allowgames/assets/allowgames-save-editor-logo.png" alt="Allow Games Save Editor" width="520"></a></p>
+
 ## What the Allow Games Edition adds
 
 | | |
@@ -34,8 +36,8 @@ tuned for a steady, playable 60 fps.</h4>
 | **Latest upstream fixes** | Built on upstream `main` with EvilOOT's exposure-flicker fix (the black flashes) and the foliage and lighting fixes. |
 | **Clearer picture** (v1.1) | The game's fog thinned to 25% and exposure to 90%, so outdoor scenes are no longer a white wall. `RX_VK_OOT_VISUAL=0` in `hookshot_env.txt` restores upstream's look; `RX_VK_OOT_FOG` and `RX_VK_OOT_EXPOSURE` set the amounts. |
 | **Allow Games intro** | A short animated Allow Games logo over the black of the first seconds. `ALLOWGAMES_NO_INTRO=1` in `hookshot_env.txt` skips it. |
-| **Allow Games Save Editor** (v1.6) | Gives a save slot everything: 20 hearts, 999 rupees, magic, double defense, every sword, shield, tunic, boot, item and mask, full ammo, 4 bottles, the stones, medallions and all 13 songs, with a backup first. In the zip: drag a `progress.sav` onto `AllowGames-SaveEditor\AllowGames-SaveEditor.bat`. Spanish/English guide and how it works: [tools/allowgames](tools/allowgames/README.md). |
-| **Version in the menu** | The Insert menu shows which Allow Games Edition is running (`AG BETA v1.6`). |
+| **Allow Games Save Editor** (v1.6, icon v1.7) | Gives a save slot everything: 20 hearts, 999 rupees, magic, double defense, every sword, shield, tunic, boot, item and mask, full ammo, 4 bottles, the stones, medallions and all 13 songs, with a backup first. In the zip: drag a `progress.sav` onto `AllowGames-SaveEditor\AllowGames-SaveEditor.exe`. Spanish/English guide and how it works: [tools/allowgames](tools/allowgames/README.md). |
+| **Version in the menu** | The Insert menu shows which Allow Games Edition is running (`AG BETA v1.7`). |
 
 Switches for `hookshot_env.txt` (one `NAME=VALUE` per line, beside the game):
 

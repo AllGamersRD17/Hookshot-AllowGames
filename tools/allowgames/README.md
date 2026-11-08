@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/allowgames-save-editor-logo.png" alt="Save Editor - Allow Games" width="640"></p>
+
 # Allow Games Save Editor
 
 **Por / By: Allow Games (AllGamersRD).** Hecho para **Hookshot · Allow Games Edition** (el port de PC de *The Legend of
@@ -35,8 +37,8 @@ misiones sigan funcionando.
 1. **Cierra el juego.**
 2. Abre la carpeta de partidas: `<carpeta del juego>\user\save\<tu cuenta>\slot_NN\` (`slot_00`, `slot_01`… es el orden en
    que creaste las partidas).
-3. Arrastra `progress.sav` encima de **`AllowGames-SaveEditor.bat`** (viene en la carpeta `AllowGames-SaveEditor` del
-   `HookshotBuilder.zip`). Usa el Python que trae el Builder; no tienes que instalar nada.
+3. Arrastra `progress.sav` encima de **`AllowGames-SaveEditor.exe`** (el del icono de Allow Games, en la carpeta
+   `AllowGames-SaveEditor` del `HookshotBuilder.zip`; el `.bat` hace lo mismo). Usa el Python que trae el Builder; no tienes que instalar nada.
 4. Abre el juego y carga esa partida.
 
 Siempre se guarda una copia antes: `progress.sav.bak-<fecha>`. Para volver atrás, borra `progress.sav` y quita
@@ -69,7 +71,7 @@ bombchus 50, magic beans 10); 4 bottles (two fairies, a blue potion, an empty on
 medallions, the Gerudo card and all 13 songs. Trade-sequence items are left alone so those quests still work.
 
 ### Use
-Close the game, drag `<game folder>\user\save\<account>\slot_NN\progress.sav` onto `AllowGames-SaveEditor.bat`, start the
+Close the game, drag `<game folder>\user\save\<account>\slot_NN\progress.sav` onto `AllowGames-SaveEditor.exe` (or the `.bat`), start the
 game and load that slot. A backup (`progress.sav.bak-<time>`) is always written first. Command line: see above (`all`,
 `show`, `rupees N`, `hearts N`, `items`, `songs`, `quest`, `masks`, `equipment`, `bottles`, `magic`, `strength`,
 `defense`).
