@@ -22,7 +22,7 @@ struct Options {
     int preset = 0;       // quality preset: 0 Custom, 1 Minimum (4GB), 2 Low (6GB), 3 Balanced (8GB), 4 High (12GB), 5 Ultra (16GB+)
     int vram_mb = 0;      // dynamic texture cache budget limit in MB
     int mirror_mb = 0;    // staging mirror limit in MB
-    int lock60 = 1;       // (Allow Games) FPS lock: 0 off; 1: the game held to a steady 30 (host/nn_vi.c), 2x frame generation paced to 60; 2: 30, no frame generation
+    int lock60 = 0;       // (Allow Games) FPS lock, off by default since AG BETA v1.4 (upstream's fps gain reaches a native 60): 0 off; 1: the game held to a steady 30 (host/nn_vi.c), 2x frame generation paced to 60; 2: 30, no frame generation
 };
 extern Options opts;
 

@@ -31,10 +31,17 @@ At 2560x1440 with Resolution on Auto, in Kokiri Forest: GPU time 25-27 ms a fram
 (new textures not fitting), and the brightness pumped as Auto changed the resolution. Next: Resolution 67%, and the new 30
 lock (AG BETA v1.2) for the lightest load.
 
+### AG BETA v1.3: a native 60 (2026-11-08)
+
+With upstream's per-queue fences (about 45% more fps) in the edition, on the same PC (14700K, RTX 3070, 2560x1440, Quality
+preset Balanced, Resolution 100%, Handheld profile off, **FPS lock off, frame generation off**): **60.0 fps native**, every
+5-second window at 60.0; present intervals 15.5-17.8 ms for ~87% of frames and none over 22 ms; GPU 12.6-13.2 ms a frame.
+The player described it as completely smooth with no stutter. From AG BETA v1.4 the FPS lock is off by default.
+
 ### Conclusions so far
 
 - On a 14700K + RTX 3070 the game reaches about 50 fps natively; the GPU is far from busy.
-- The 60 fps lock (an even 30 plus 2x frame generation) is the steadiest way to a playable 60 today.
+- Before v1.3: the 60 fps lock (an even 30 plus 2x frame generation) was the steadiest way to 60. From v1.3 a native 60 holds on this PC; the lock (60 or 30) stays for slower PCs.
 - Windows 10 on a hybrid Intel CPU is not the limit here (E-cores ruled out).
 - Next to look at: the waits between `sead::MainThread` and the `ModuleSystemWorker` threads (`HOS_WAIT_LOG`, `HOS_SAMPLE`).
 
