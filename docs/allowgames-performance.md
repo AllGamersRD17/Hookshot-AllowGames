@@ -43,7 +43,7 @@ The player described it as completely smooth with no stutter. From AG BETA v1.4 
 Out in Hyrule Field with Quality preset **Ultra** (meant for 16 GB+) on the RTX 3070 (8 GB) at 1440p and Resolution 100%: 3,800
 draws a frame (Kokiri: ~1,000), GPU 18-19 ms, VRAM over budget (7.6 GB used of 6.9 GB allowed, textures 3.0 GB of a 2.2 GB
 budget). The game fell to 27-58 fps and the brightness flashed. Next: Quality preset **Balanced** (8 GB) and Resolution 75%;
-results to follow. On 8 GB cards, keep the preset at Balanced or lower.
+On Balanced (Handheld profile on, Resolution 75%): 60 fps with GPU at 10-11 ms. The remaining outdoor brightness flashes were upstream issue 574 (CPU a frame ahead of the GPU), fixed in AG BETA v1.5 by the per-frame GPU wait. On 8 GB cards, keep the preset at Balanced or lower.
 
 ### Conclusions so far
 
