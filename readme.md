@@ -5,6 +5,8 @@ tuned for a steady, playable 60 fps.</h4>
 
 <p align="center"><a href="https://github.com/AllGamersRD17/Hookshot-AllowGames/releases/latest"><b>⬇️ Download / Descargar: HookshotBuilder.zip (latest release)</b></a></p>
 
+<p align="center"><a href="docs/allowgames-video.md"><img src="docs/media/allowgames-demo-menus.gif" alt="Video: Allow Games Edition a 60 fps + Save Editor" width="560"></a><br><b>🎬 <a href="docs/allowgames-video.md">Míralo funcionando / See it working</a></b>: 60 fps fijos y una partida con todo gracias al Save Editor (<a href="docs/media/allowgames-demo-1080p.mp4">video 1080p</a>).</p>
+
 ### 🇪🇸 Cómo instalarlo
 1. Baja **`HookshotBuilder.zip`** de la [última versión](https://github.com/AllGamersRD17/Hookshot-AllowGames/releases/latest) y descomprímelo en una carpeta nueva.
 2. Abre **`HookshotBuilder.exe`**. Si sale «Windows protegió su PC», dale a *Más información* → *Ejecutar de todas formas* (el instalador no tiene firma de empresa).

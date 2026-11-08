@@ -2,6 +2,8 @@
 
 # Allow Games Save Editor
 
+🎬 **[Video: el editor funcionando en el juego / the editor working in game](../../docs/allowgames-video.md)**
+
 **Por / By: Allow Games (AllGamersRD).** Hecho para **Hookshot · Allow Games Edition** (el port de PC de *The Legend of
 Zelda: Ocarina of Time* para Switch 2). Made for **Hookshot · Allow Games Edition**.
 
