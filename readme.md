@@ -28,6 +28,10 @@ Switches for `hookshot_env.txt` (one `NAME=VALUE` per line, beside the game):
 - `ALLOWGAMES_NO_INTRO=1`: no intro.
 - `ALLOWGAMES_UPDATE_CHECK=1`: the start-up update offer (off by default in this edition).
 
+### Performance notes
+
+What has been measured on players' PCs, and what did and did not help: [docs/allowgames-performance.md](docs/allowgames-performance.md).
+
 ### Building it
 
 The same as upstream (below): download `HookshotBuilder.zip` from **this repository's Releases**, extract it, run
