@@ -52,7 +52,9 @@ jobs:
           # (its launcher with the Allow Games icon: .NET Framework csc, which every Windows 10/11 has, so nothing to install)
           E=up/HookshotBuilder/AllowGames-SaveEditor
           MSYS_NO_PATHCONV=1 /c/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe -nologo -optimize -target:exe \
-            -out:"$E/AllowGames-SaveEditor.exe" -win32icon:tools/allowgames/assets/icon.ico tools/allowgames/launcher/Launcher.cs
+            '-out:up\HookshotBuilder\AllowGames-SaveEditor\AllowGames-SaveEditor.exe' \
+            '-win32icon:tools\allowgames\assets\icon.ico' 'tools\allowgames\launcher\Launcher.cs'
+          test -f "$E/AllowGames-SaveEditor.exe"
           ls -la "$E"
           echo "$TAG" > "$T/version.txt"
           # (never game files: stop if anything that looks like one got in)
