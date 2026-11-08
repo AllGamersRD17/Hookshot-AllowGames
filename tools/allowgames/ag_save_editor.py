@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Allow Games Save Editor for Hookshot (Ocarina of Time, Switch 2 data).
+r"""Allow Games Save Editor for Hookshot (Ocarina of Time, Switch 2 data).
 
 Edits a slot's progress.sav: rupees, hearts, magic, strength, double defense and every item, song, stone and medallion.
 A backup of the slot is written beside it first (progress.sav.bak-<time>). Works on YOUR saves only; it ships no game data.
