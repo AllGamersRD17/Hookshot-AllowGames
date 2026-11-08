@@ -16,7 +16,7 @@ tuned for a steady, playable 60 fps.</h4>
 
 | | |
 |---|---|
-| **60 fps lock** (on by default) | Gameplay is CPU-bound near 50 fps, so a native 60 stutters. The lock holds the game to an even 30 and 2x frame generation fills every other frame, paced evenly: a steady 60 on screen, with game speed kept at real time. It is the first row of the Insert menu; turn it off for upstream's behaviour. |
+| **FPS lock** (60 by default) | Gameplay is CPU-bound near 50 fps, so a native 60 stutters. **60:** the game held to an even 30 and 2x frame generation fills every other frame, paced evenly: a steady 60 on screen, with game speed kept at real time. **30:** an even 30 with no frame generation, the lightest on the CPU and the GPU (for 8 GB cards at 1440p). The first row of the Insert menu; Off for upstream's behaviour. |
 | **Latest upstream fixes** | Built on upstream `main` with EvilOOT's exposure-flicker fix (the black flashes) and the foliage and lighting fixes. |
 | **Clearer picture** (v1.1) | The game's fog thinned to 25% and exposure to 90%, so outdoor scenes are no longer a white wall. `RX_VK_OOT_VISUAL=0` in `hookshot_env.txt` restores upstream's look; `RX_VK_OOT_FOG` and `RX_VK_OOT_EXPOSURE` set the amounts. |
 | **Allow Games intro** | A short animated Allow Games logo over the black of the first seconds. `ALLOWGAMES_NO_INTRO=1` in `hookshot_env.txt` skips it. |
@@ -24,7 +24,7 @@ tuned for a steady, playable 60 fps.</h4>
 
 Switches for `hookshot_env.txt` (one `NAME=VALUE` per line, beside the game):
 
-- `ALLOWGAMES_LOCK60=0`: start with the 60 fps lock off.
+- `ALLOWGAMES_LOCK60=0` / `1` / `2`: start with the FPS lock off / at 60 / at 30.
 - `ALLOWGAMES_NO_INTRO=1`: no intro.
 - `ALLOWGAMES_UPDATE_CHECK=1`: the start-up update offer (off by default in this edition).
 

@@ -51,15 +51,19 @@ const char* tx_resolution(int v) {
     static const char* t[] = {"Auto", "100%", "75%", "67%", "50%"};
     return t[v];
 }
+const char* tx_lock(int v) {
+    static const char* t[] = {"Off", "60 (30 + frame gen)", "30"};
+    return t[v];
+}
 const char* tx_speed(int v) { return v ? "Real time" : "Per frame"; }
 const char* tx_handheld(int v) { return v ? "On (restart)" : "Off (restart)"; }
 const char* tx_ultrawide(int v) { return v ? "Monitor's shape (restart)" : "16:9 (restart)"; }
 
 Row rows[] = {
-    {"60 fps lock", &opts.lock60, 0, 1, 1, tx_onoff,
-     "Allow Games: a steady 60. The game runs at an even 30 and 2x frame generation fills in every other frame, paced "
-     "evenly. Far lighter on the CPU than chasing a native 60. While it is on, Frame generation, Frame pacing and Game speed stay as it "
-     "needs them: turn it off first to change them."},
+    {"FPS lock", &opts.lock60, 0, 2, 1, tx_lock,
+     "Allow Games: a steady frame rate. 60: the game runs at an even 30 and 2x frame generation fills in every other frame, paced "
+     "evenly. 30: an even 30 with no frame generation, the lightest on the CPU and the GPU, like the console. While it is on, Frame "
+     "generation, Frame pacing and Game speed stay as it needs them: turn it off first to change them."},
     {"Fullscreen", &opts.fullscreen, 0, 1, 1, tx_onoff,
      "Fills the whole screen with the game, without the window's border. The same as F11."},
     {"Frame generation", &opts.framegen, 0, 8, 1, tx_framegen,
@@ -113,8 +117,9 @@ void save() {
 /// (Allow Games) The 60 fps lock's settings: 2x frame generation, even pacing, real-time game speed (the game itself is held to
 /// 30 by host/nn_vi.c through option 4). Turned off, frame generation goes back off.
 void apply_lock60(bool turned_off) {
-    if (opts.lock60) opts.framegen = 2, opts.pace = 1, opts.realtime = 1;
-    else if (turned_off) opts.framegen = 0;
+    if (opts.lock60 == 1) opts.framegen = 2, opts.pace = 1, opts.realtime = 1;
+    else if (opts.lock60 == 2) opts.framegen = 0, opts.pace = 1, opts.realtime = 1;   // (30: the game's own frames, evenly paced)
+    else if (turned_off) opts.framegen = 0;   // (off: frame generation back off)
 }
 
 // ---- what is drawn: bitmaps of the menu and the counter, in the window's byte order ----
@@ -480,6 +485,7 @@ void menu_init() {
                 if (!strcmp(line, ini_key(r))) *r.value = std::min(std::max(atoi(eq + 1), r.lo), r.hi);
             has_resolution |= !strcmp(line, "resolution");
             v2 |= !strcmp(line, "options_version");
+            if (!strcmp(line, "60_fps_lock")) opts.lock60 = std::min(std::max(atoi(eq + 1), 0), 1);   // (AG BETA v1.0-v1.1's key)
             if (!strcmp(line, "dynamic_resolution")) old_dynres = atoi(eq + 1);
         }
         fclose(f);
@@ -489,7 +495,7 @@ void menu_init() {
         if (!v2) opts.realtime = 1;
     }
     if (opts.framegen == 1) opts.framegen = 2;
-    if (const char* e = getenv("ALLOWGAMES_LOCK60")) opts.lock60 = atoi(e) != 0;
+    if (const char* e = getenv("ALLOWGAMES_LOCK60")) opts.lock60 = std::min(std::max(atoi(e), 0), 2);   // (0 off, 1: 60, 2: 30)
     apply_lock60(false);
     if (const char* e = getenv("RX_VK_FRAMEGEN_MULT")) opts.framegen = std::min(std::max(atoi(e), 2), 8);
     if (const char* e = getenv("RX_VK_PACE")) opts.pace = atoi(e) != 0;
@@ -587,7 +593,7 @@ void menu_tick() {
             int v = *r.value + (press[4] ? r.step : -r.step);
             if (r.value == &opts.framegen && v == 1) v = press[4] ? 2 : 0;   // (off, 2x ... 8x)
             *r.value = v > r.hi ? r.lo : v < r.lo ? r.hi : v;
-            if (r.value == &opts.lock60) apply_lock60(!opts.lock60);
+            if (r.value == &opts.lock60) apply_lock60(true);
             else if (opts.lock60) apply_lock60(false);   // (while the lock is on, its three settings stay as it needs them)
             changed = true;
             save();

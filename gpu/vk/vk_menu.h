@@ -17,7 +17,7 @@ struct Options {
     int ultrawide = 0;    // the camera at the monitor's shape when it is wider than 16:9; read once, at the start (host/hos_main.c)
     int show_fps = 0;
     int fullscreen = 0;   // borderless, at the monitor's size: F11 is the same setting
-    int lock60 = 1;       // (Allow Games) 60 fps lock: the game held to a steady 30 (host/nn_vi.c), 2x frame generation paced to 60
+    int lock60 = 1;       // (Allow Games) FPS lock: 0 off; 1: the game held to a steady 30 (host/nn_vi.c), 2x frame generation paced to 60; 2: 30, no frame generation
 };
 extern Options opts;
 

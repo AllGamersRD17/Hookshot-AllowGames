@@ -24,6 +24,13 @@ core does not shorten the frame. That is why pinning to P-cores changed nothing,
 recompiled game's threads synchronise (host/hos_svc.c, host/nn_os_sync.c, the virtual cores in host/hos_thread.c), not on
 which cores they run.
 
+### GPU limit at 1440p (later the same day)
+
+At 2560x1440 with Resolution on Auto, in Kokiri Forest: GPU time 25-27 ms a frame and VRAM over budget (6822 MB used of
+6246 MB allowed, textures 2.2 GB of a 1.5 GB budget). With the 60 lock the game fell to 20-29 fps when turning the camera
+(new textures not fitting), and the brightness pumped as Auto changed the resolution. Next: Resolution 67%, and the new 30
+lock (AG BETA v1.2) for the lightest load.
+
 ### Conclusions so far
 
 - On a 14700K + RTX 3070 the game reaches about 50 fps natively; the GPU is far from busy.
