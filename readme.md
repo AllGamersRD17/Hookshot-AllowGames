@@ -34,6 +34,7 @@ tuned for a steady, playable 60 fps.</h4>
 | **Latest upstream fixes** | Built on upstream `main` with EvilOOT's exposure-flicker fix (the black flashes) and the foliage and lighting fixes. |
 | **Clearer picture** (v1.1) | The game's fog thinned to 25% and exposure to 90%, so outdoor scenes are no longer a white wall. `RX_VK_OOT_VISUAL=0` in `hookshot_env.txt` restores upstream's look; `RX_VK_OOT_FOG` and `RX_VK_OOT_EXPOSURE` set the amounts. |
 | **Allow Games intro** | A short animated Allow Games logo over the black of the first seconds. `ALLOWGAMES_NO_INTRO=1` in `hookshot_env.txt` skips it. |
+| **Save editor** | `tools/allowgames/ag_save_editor.py`: everything in a save slot (items, ammo, 20 hearts, 999 rupees, magic, bottles, stones, medallions, songs), with a backup first. See [tools/allowgames](tools/allowgames/README.md). |
 | **Version in the menu** | The Insert menu shows which Allow Games Edition is running (`AG BETA v1.1`). |
 
 Switches for `hookshot_env.txt` (one `NAME=VALUE` per line, beside the game):
