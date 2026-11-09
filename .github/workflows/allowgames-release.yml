@@ -92,18 +92,22 @@ jobs:
           fi
           have=$(gh release view builder-parts --json assets --jq '.assets[].name')
           for f in dist/HookshotBuilder-*.zip; do
-            grep -qxF "$(basename "$f")" <<<"$have" && echo "$(basename "$f"): already there" || gh release upload builder-parts "$f"
+            if grep -qxF "$(basename "$f")" <<<"$have"; then
+              echo "$(basename "$f"): already there"
+            else
+              gh release upload builder-parts "$f"
+            fi
           done
       - name: Release
         run: |
           NOTES=".github/allowgames/${TAG}.md"
           [ -f "$NOTES" ] || NOTES=/dev/null
-          FILES="HookshotBuilder.zip dist/HookshotBuilder.exe dist/hookshot-setup.txt"
+          FILES=(HookshotBuilder.zip dist/HookshotBuilder.exe dist/hookshot-setup.txt)
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" $FILES --clobber
+            gh release upload "$TAG" "${FILES[@]}" --clobber
             # (the Linux AppImage workflow may have made it first, with GitHub's generated notes: the edition's title and notes)
             gh release edit "$TAG" --title "Allow Games Edition — ${TAG#AG-}" --notes-file "$NOTES" --latest
           else
-            gh release create "$TAG" $FILES --target "$GITHUB_SHA" --title "Allow Games Edition — ${TAG#AG-}" \
+            gh release create "$TAG" "${FILES[@]}" --target "$GITHUB_SHA" --title "Allow Games Edition — ${TAG#AG-}" \
               --notes-file "$NOTES" --latest
           fi
