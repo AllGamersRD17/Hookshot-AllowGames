@@ -358,6 +358,13 @@ void apply_lock60(bool turned_off) {
     else if (opts.lock60 == 2) opts.framegen = 0, opts.pace = 1, opts.realtime = 1;   // (30: the game's own frames, evenly paced)
     else if (turned_off) opts.framegen = 0;   // (off: frame generation back off)
 }
+/// (Allow Games) The FPS lock kept in force as rows change (save() runs after every change): turned on, its settings; turned
+/// off, frame generation back off; while it is on, its three settings stay as it needs them
+void ag_lock_sync() {
+    static int seen = -1;
+    if (opts.lock60 != seen) apply_lock60(seen > 0 && opts.lock60 == 0), seen = opts.lock60;
+    else if (opts.lock60) apply_lock60(false);
+}
 void sync_preset_budgets(int p) {
     switch (p) {
     case 1: opts.vram_mb = 2200;  opts.mirror_mb = 256;  break;
@@ -516,6 +523,9 @@ Row rows[] = {
     {TAB_GAMEPLAY, "Microphone", &opts.mic, 0, 2 + kMaxMics, 1, tx_mic,
      "What the ocarina hears when the game's microphone option is on (playing an instrument, or humming).", hn_mic, false,
      true},
+    {TAB_GAMEPLAY, "Discord", &opts.ag_discord, 0, 1, 1, tx_onoff,
+     "Allow Games: your Discord profile shows that you are playing the Allow Games Edition, with the time played. Only with "
+     "the Discord app open on this PC.", nullptr, false, true},
 
     // Controls (14 rows)
     {TAB_CONTROLS, "Controller in background", &opts.pad_background, 0, 1, 1, tx_onoff,
@@ -860,6 +870,7 @@ void mic_chosen() {
     mic_tell_host();
 }
 void save() {
+    ag_lock_sync();
     // (hookshot) the lines that are not the menu's are kept: the controls, pad_ and key_ (host/nn_hid.c)
     std::string kept;
     if (FILE* f = fopen(ini_path().c_str(), "r")) {
@@ -914,8 +925,6 @@ void set_row(Row& r, int v, int dir, bool keep = true) {
             sync_preset_budgets(0);
         }
     }
-    if (r.value == &opts.lock60) apply_lock60(true);   // (Allow Games)
-    else if (opts.lock60) apply_lock60(false);   // (while the lock is on, its three settings stay as it needs them)
     if (r.value == &opts.mic && can_mic()) mic_chosen();   // (hookshot)
     {   // (a row that takes a restart, or a preset that sets one: asked again at the next close)
         int now[mr::kMax];

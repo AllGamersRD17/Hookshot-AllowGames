@@ -35,17 +35,21 @@ tuned for a steady, playable 60 fps.</h4>
 | | |
 |---|---|
 | **FPS lock** (off by default since v1.4) | Since upstream's fps gain (v1.3) the game reaches a **native 60** on a fast PC, so the lock is off. For slower PCs: **60:** the game held to an even 30 and 2x frame generation fills every other frame, paced evenly: a steady 60 on screen, with game speed kept at real time. **30:** an even 30 with no frame generation, the lightest on the CPU and the GPU (for 8 GB cards at 1440p). The first row of the Insert menu; Off for upstream's behaviour. |
-| **Latest upstream fixes** | Built on upstream `main` with EvilOOT's exposure-flicker fix (the black flashes) and the foliage and lighting fixes. |
+| **Latest upstream** | Built on upstream `main` (v2.0.11 and after, 11-09: DLSS, the Controls tab, mods, the start-up screen and the installer), with EvilOOT's exposure-flicker fix and the foliage and lighting fixes. |
 | **Clearer picture** (v1.1) | The game's fog thinned to 25% and exposure to 90%, so outdoor scenes are no longer a white wall. `RX_VK_OOT_VISUAL=0` in `hookshot_env.txt` restores upstream's look; `RX_VK_OOT_FOG` and `RX_VK_OOT_EXPOSURE` set the amounts. |
 | **Allow Games intro** | A short animated Allow Games logo over the black of the first seconds. `ALLOWGAMES_NO_INTRO=1` in `hookshot_env.txt` skips it. |
 | **Allow Games Save Editor** (v1.6, icon v1.7) | Gives a save slot everything: 20 hearts, 999 rupees, magic, double defense, every sword, shield, tunic, boot, item and mask, full ammo, 4 bottles, the stones, medallions and all 13 songs, with a backup first. In the zip: drag a `progress.sav` onto `AllowGames-SaveEditor\AllowGames-SaveEditor.exe`. Spanish/English guide and how it works: [tools/allowgames](tools/allowgames/README.md). |
-| **Version in the menu** | The Insert menu shows which Allow Games Edition is running (`AG BETA v1.7`). |
+| **Cheats page on** (v2.0) | Upstream's debug tools (heart protection, flight, free camera, teleport, the inventory) are on in this edition: Insert → *Gameplay* → **Cheats**. `ALLOWGAMES_CHEATS=0` in `hookshot_env.txt` hides them. |
+| **Discord** (v2.0) | A *Discord* row on the *Gameplay* tab: your Discord profile shows you playing the Allow Games Edition, with the time played and a download button. Only through the Discord app on your own PC (its local pipe), nothing sent anywhere else. Needs the Allow Games application's id (`AG_DISCORD_CLIENT_ID` in `host/ag_discord.c`, or `ALLOWGAMES_DISCORD_ID` in `hookshot_env.txt`); `ALLOWGAMES_DISCORD=0` turns it off. |
+| **Version in the menu** | The Insert menu and the start-up screen show which Allow Games Edition is running (`AG BETA v2.0`). |
 
 Switches for `hookshot_env.txt` (one `NAME=VALUE` per line, beside the game):
 
 - `ALLOWGAMES_LOCK60=0` / `1` / `2`: start with the FPS lock off / at 60 / at 30.
 - `ALLOWGAMES_NO_INTRO=1`: no intro.
 - `ALLOWGAMES_UPDATE_CHECK=0`: no start-up update offer (on from AG BETA v1.3: it fetches this edition's releases).
+- `ALLOWGAMES_CHEATS=0`: no Cheats page (on from AG BETA v2.0).
+- `ALLOWGAMES_DISCORD=0`: no Discord presence.
 
 ### Performance notes
 

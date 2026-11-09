@@ -1,7 +1,9 @@
-# (Allow Games) The edition's HookshotBuilder.zip: this repository's own HookshotBuilder.exe (built here, so its updater asks
-# this fork's releases) and upstream's released tools (Python, llvm-mingw, emsdk and prebuilt helpers, none of it game data),
-# with this repository's sources laid over the tools folder. Published as the tag's release.
-# Run it by hand with a tag name (AG-...). Release notes: .github/allowgames/<tag>.md
+# (Allow Games) The edition's release, the way upstream makes its own since its installer (.github/workflows/windows-builder.yml):
+# this repository's HookshotBuilder (its updater asks this fork's releases), its setup (HookshotBuilder.exe) and the list it reads
+# (hookshot-setup.txt), with the parts that changed uploaded to this fork's builder-parts release and the others (Python, emsdk,
+# CPM, wgpu-native, llvm-mingw) taken from upstream's as they are. Also the whole builder in one zip (HookshotBuilder.zip), for
+# the readme's "extract and run" and for the updater of AG BETA v1.x builders, which download a zip. No game data anywhere.
+# On an AG-* tag, or by hand with a tag name. Release notes: .github/allowgames/<tag>.md
 name: Allow Games release
 on:
   push:
@@ -13,64 +15,95 @@ on:
         required: true
 permissions:
   contents: write
-env:
-  UPSTREAM_TOOLS_TAG: no-visual-studio   # (the last upstream release shipped as one zip: its tools folder is reused)
+defaults:
+  run:
+    shell: bash
 jobs:
-  zip:
-    runs-on: windows-latest
-    defaults:
-      run:
-        shell: bash
+  release:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
       - name: Tag
-        run: echo "TAG=${{ github.event.inputs.tag || github.ref_name }}" >> "$GITHUB_ENV"
-      - name: Upstream tools
         run: |
-          curl -fsSL --retry 5 -o upstream.zip "https://github.com/NotRexed/Hookshot/releases/download/${UPSTREAM_TOOLS_TAG}/HookshotBuilder.zip"
-          mkdir up && cd up && unzip -q ../upstream.zip && ls
-      - name: This edition's HookshotBuilder.exe
-        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
           V="${TAG#AG-BETA-v}"; V="${V#AG-v}"
-          dotnet publish builder/HookshotBuilder/HookshotBuilder.csproj -c Release -o pub -p:Version="${V}.0" 2>&1 | tail -5
-          B=up/HookshotBuilder
-          # (the app's own files replaced; the tools folder stays)
-          find "$B" -maxdepth 1 -type f -delete
-          cp -a pub/. "$B/"
-          ls "$B" | head
-      - name: This edition's sources over the tools
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          echo "VERSION=$V" >> "$GITHUB_ENV"
+          echo "tag $TAG, version $V"
+      - name: llvm-mingw
+        run: echo "LLVM_MINGW=$(python -I scripts/release_parts.py llvm-mingw "$RUNNER_TEMP/llvm")" >> "$GITHUB_ENV"
+      # (the newest release's list with Python, emsdk, CPM and wgpu-native parts: this fork's once it has one, else upstream's)
+      - name: The latest release's setup list
         run: |
-          T=up/HookshotBuilder/tools
-          for d in host gpu nx2 scripts third_party builder; do [ -d "$d" ] && mkdir -p "$T/$d" && cp -a "$d/." "$T/$d/"; done
-          [ -d work ] && cp -a work/. "$T/work/" || true
-          cp readme.md LICENSE "$T/"
-          # (the Allow Games Save Editor, beside HookshotBuilder.exe: drag a progress.sav onto its .bat)
-          mkdir -p up/HookshotBuilder/AllowGames-SaveEditor && cp -a tools/allowgames/. up/HookshotBuilder/AllowGames-SaveEditor/
-          # (its launcher with the Allow Games icon: .NET Framework csc, which every Windows 10/11 has, so nothing to install)
-          E=up/HookshotBuilder/AllowGames-SaveEditor
+          python -I scripts/release_parts.py previous "$RUNNER_TEMP/previous-setup.txt" \
+            --repo "$GITHUB_REPOSITORY" --repo NotRexed/Hookshot --skip-tag "$TAG"
+          cat "$RUNNER_TEMP/previous-setup.txt"
+      - name: Play profile
+        run: python -I scripts/release_parts.py profile "$RUNNER_TEMP/previous-setup.txt" work
+      - name: HookshotBuilder-Setup.exe
+        working-directory: builder/setup
+        run: |
+          "$LLVM_MINGW/bin/x86_64-w64-mingw32-windres" setup.rc -O coff -o "$RUNNER_TEMP/setup_rc.o"
+          "$LLVM_MINGW/bin/x86_64-w64-mingw32-clang" -O2 -mwindows -municode setup.c "$RUNNER_TEMP/setup_rc.o" \
+            -lwinhttp -lbcrypt -lcomctl32 -lshell32 -lole32 -o "$RUNNER_TEMP/HookshotBuilder-Setup.exe"
+      - name: Hookshot Builder
+        run: >-
+          dotnet publish builder/HookshotBuilder/HookshotBuilder.csproj --configuration Release
+          -p:Version="$VERSION" -p:NuGetAudit=false --output "$RUNNER_TEMP/publish"
+      - name: Package folder, with the Allow Games Save Editor beside the builder
+        run: |
+          P="$RUNNER_TEMP/package"
+          python -I scripts/release_parts.py package "$P" --publish "$RUNNER_TEMP/publish" \
+            --setup "$RUNNER_TEMP/HookshotBuilder-Setup.exe" --list "$RUNNER_TEMP/previous-setup.txt"
+          cp readme.md "$P/tools/"
+          E="$P/AllowGames-SaveEditor"
+          mkdir -p "$E" && cp -a tools/allowgames/. "$E/"
+          # (its launcher with the Allow Games icon: .NET Framework's csc, which every Windows 10/11 has)
           MSYS_NO_PATHCONV=1 /c/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe -nologo -optimize -target:exe \
-            '-out:up\HookshotBuilder\AllowGames-SaveEditor\AllowGames-SaveEditor.exe' \
-            '-win32icon:tools\allowgames\assets\icon.ico' 'tools\allowgames\launcher\Launcher.cs'
+            "-out:$(cygpath -w "$E/AllowGames-SaveEditor.exe")" '-win32icon:tools\allowgames\assets\icon.ico' \
+            'tools\allowgames\launcher\Launcher.cs'
           test -f "$E/AllowGames-SaveEditor.exe"
-          ls -la "$E"
-          echo "$TAG" > "$T/version.txt"
-          # (never game files: stop if anything that looks like one got in)
-          if find up -iname '*.nup' -o -iname '*.keys' -o -iname 'hookshot.exe' -o -iname 'image.bin' | grep -q .; then
-            echo "game files found"; exit 1; fi
-          (cd up && 7z a -tzip -mx=7 ../HookshotBuilder.zip HookshotBuilder > /dev/null)
-          ls -la HookshotBuilder.zip
+      - name: Setup parts
+        run: |
+          python -I scripts/make_setup_parts.py "$RUNNER_TEMP/package" "$TAG" dist \
+            --base "https://github.com/$GITHUB_REPOSITORY/releases/download/builder-parts" --reuse "$RUNNER_TEMP/previous-setup.txt"
+          cp "$RUNNER_TEMP/HookshotBuilder-Setup.exe" dist/HookshotBuilder.exe
+          cat dist/hookshot-setup.txt
+          ls -l dist
+      - name: The whole builder in one zip
+        run: python -I scripts/allowgames_full_zip.py dist HookshotBuilder.zip
+      - name: New parts to builder-parts
+        run: |
+          if ! gh release view builder-parts >/dev/null 2>&1; then
+            gh release create builder-parts --prerelease --latest=false --target "$GITHUB_SHA" --title builder-parts \
+              --notes "The parts HookshotBuilder.exe (the setup) downloads, named by each release's hookshot-setup.txt."
+          fi
+          have=$(gh release view builder-parts --json assets --jq '.assets[].name')
+          for f in dist/HookshotBuilder-*.zip; do
+            grep -qxF "$(basename "$f")" <<<"$have" && echo "$(basename "$f"): already there" || gh release upload builder-parts "$f"
+          done
       - name: Release
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           NOTES=".github/allowgames/${TAG}.md"
           [ -f "$NOTES" ] || NOTES=/dev/null
+          FILES="HookshotBuilder.zip dist/HookshotBuilder.exe dist/hookshot-setup.txt"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" HookshotBuilder.zip --clobber
+            gh release upload "$TAG" $FILES --clobber
+            # (the Linux AppImage workflow may have made it first, with GitHub's generated notes: the edition's title and notes)
+            gh release edit "$TAG" --title "Allow Games Edition — ${TAG#AG-}" --notes-file "$NOTES" --latest
           else
-            gh release create "$TAG" HookshotBuilder.zip --target "$GITHUB_SHA" --title "Allow Games Edition — ${TAG#AG-}" \
+            gh release create "$TAG" $FILES --target "$GITHUB_SHA" --title "Allow Games Edition — ${TAG#AG-}" \
               --notes-file "$NOTES" --latest
           fi

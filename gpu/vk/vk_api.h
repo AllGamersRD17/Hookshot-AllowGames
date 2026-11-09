@@ -19,7 +19,7 @@ extern "C" {
 enum { HOS_OPT_CHEAT_HEARTS = 32, HOS_OPT_CHEAT_FLIGHT, HOS_OPT_CHEAT_ACTION, HOS_OPT_CHEAT_CAMERA };
 /* (Allow Games) the FPS lock (the Insert menu's first row): host/nn_vi.c holds the game to an even 30 when it is on. 64, away
    from upstream's ids (6 is upstream's mouse row since the Controls tab) */
-enum { HOS_OPT_AG_LOCK60 = 64 };
+enum { HOS_OPT_AG_LOCK60 = 64, HOS_OPT_AG_DISCORD };   /* (and Discord's status: host/ag_discord.c) */
 /* (hookshot) the Controls tab's motion rows (host/pad_sdl.c reads them, vk_replay.cpp's option answers them): Motion
    controls on or off, the horizontal's and the vertical's sensitivity in percent, and each turned around */
 enum { HOS_OPT_GYRO = 18, HOS_OPT_GYRO_SENS_X, HOS_OPT_GYRO_INV_X, HOS_OPT_GYRO_INV_Y, HOS_OPT_GYRO_SENS_Y };
